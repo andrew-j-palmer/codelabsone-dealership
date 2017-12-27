@@ -101,6 +101,7 @@ def mainmenu
     sleep(1)
     Transaction.save_cars
     Hr.save_staff
+    Stats.save
   else
     lastmenu
     mainmenu
@@ -151,7 +152,7 @@ def statmenu
   puts "1. Daily"
   puts "2. All-Time\n\n\n"
 
-  input = menuprompt("stats>")
+  input = menuprompt("stats> ")
   case input
   when "1"
     @allstats = 0
@@ -170,7 +171,7 @@ def statmenu
   when "2"
     Stats.commision
   when "3"
-    Stats.topandbottomlines
+    Stats.top_and_bottom_lines
   when "4"
     mainmenu
   else
