@@ -116,15 +116,16 @@ module Transaction
               @comm += (@saleprice - @cost) * 1.08
             end
             $staff[index].totalcomm += @comm
-            $totals["totalcomm"] += @comm
-            $totals["salenum"] += 1
-            $totals["saledollars"] += @saleprice
+            $total.totalcomm += @comm
+            $total.salenum += 1
+            $total.saledollars += @saleprice
             $cars.delete_at(@removecar)
             puts "#{$staff[index].name} made $#{@comm} commission on the sale. Well done!"
             sleep(2)
             transactionmenu
           when input > $staff.size
-            puts "Seriously, you need to learn to type. Cancelling sale."
+            puts "Seriously, you need to be more careful. It's too hard
+ to filter all this input. Cancelling sale."
             sleep(2)
             transactionmenu
           end

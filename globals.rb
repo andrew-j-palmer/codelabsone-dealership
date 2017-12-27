@@ -4,6 +4,7 @@
 
 $staff = Array.new # Active Sales Staff
 $cars = Array.new # Vehicles in Inventory
+$totals = Array.new # Stats compiled by day
 
 ########  MENUS      ################################################
 

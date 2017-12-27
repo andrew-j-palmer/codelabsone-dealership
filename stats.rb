@@ -1,38 +1,55 @@
-#access to all sorts of stats
-#daily totals or all-time totals
+# $totals CSV format: DAY|#SALES|$SALES|$COMMISION|#SERVICE|$SERVICE
 
-#CSV format: DAY|#SALES|$SALES|$COMMISION|#SERVICE|$SERVICE
+
+class Total
+# Stat object. A single object contains the stats for the day, $totals array contains
+# all-time stats (initialized in globals.rb, loaded and saved by Stats Module)
+  attr_accessor :saleday, :salenum, :saledollars, :totalcomm, :numservice, :dollarservice
+
+  def initialize(saleday=0,salenum=0,saledollars=0,totalcomm=0,numservice=0,dollarservice=0)
+    @saleday = saleday.to_i
+    @salenum = salenum.to_i
+    @saledollars = saledollars.to_i
+    @totalcomm = totalcomm.to_i
+    @numservice = numservice.to_i
+    @dollarservice = dollarservice.to_i
+  end
+
+
+end
+
 module Stats
 
-    def self.import(inputfile="totals.csv")
-        File.readlines(inputfile).each do |line|
-          day, sales, dollars, comm, services, service = line.split("|")
-        @saleday = day
-        @salenum += sales
-        @saledollars += dollars
-        @totalcomm += comm
-        @numservice += services
-        @dollarservice += service
-        end
-          $totals = {
-              "day" => @saleday,
-              "salenum" => @salenum,
-              "saledollars" => @saledollars,
-              "totalcomm" => @totalcomm,
-              "numservice" => @numservice,
-              "dollarservice" => @dollarservice
-          }
-      end
+  def self.import(inputfile="totals.csv")
+    File.readlines(inputfile).each do |line|
+      day, sales, dollars, comm, services, service = line.split("|")
+      total = Total.new()
+      $totals.push(total)
+    end
+  end
     
-      def self.save(inputfile="totals.csv")
-        File.open(inputfile, "w+") do |file|
-          line = ($totals["day"] + 1 ).to_s + "|" + $totals["salenum"].to_s +
- "|" + $totals["saledollars"].to_s + "|" + $totals["totalcomm"].to_s +
- $totals["numservice"].to_s + "|" + $totals["dollarservice"]
+  def self.save(inputfile="totals.csv")
+    File.open(inputfile, "w+") do |file|
+      line = ($totals.size + 1 ).to_s + "|" + $total.salenum.to_s + "|" + 
+$total.saledollars.to_s + "|" + $total.totalcomm.to_s + $total.numservice.to_s + 
+"|" + $total.dollarservice.to_s
+      puts "printing" + line
+      file.puts line
+    end
+  end
 
-          file.puts line
-        end
-      end
+  def self.vehicletotals(total)
+
+  end
+
+  def self.commision(total)
+
+  end
+
+  def self.top_and_bottom_lines(total)
+
+  end
+
 #daily
 #num/$ totals sold by agent
 #num/$ totals bought
