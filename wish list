@@ -1,0 +1,42 @@
+Inventory-
+load and save on exec/exit
+@inv - make/model, cost, list[cost + 4%(new) or 17%(used)], repairs (+ cost)
+
+staff-
+load, add, remove
+@ staff - name, total sales(# & $), total commission
+
+transactions-
+buy (new/used, cost, list[cost + 17%], repairs)
+sell (sale price, tally stats for staff and financials)
+trade (add + sell)
+service (inv/outside, price - if inv, + cost else + totals, revenue)
+
+main menu
+	staff 
+		-enter(name?)
+		-remove(list)
+		-cancel
+	Transactions
+		-buy 
+			-new/used? 
+				-cost? 
+					-repairs?(used only)
+		-sell
+			-who?
+				-price?
+		-trade
+			-who?
+				-price?
+					-trade value?
+						-repairs?
+		-service
+			-inv/outside?
+				-amt?(if inv +cost, if outside +totals)
+		-quit to main
+
+	stats
+		-daily/all-time?
+			-profit margin
+			-commision paid
+			-service totals
