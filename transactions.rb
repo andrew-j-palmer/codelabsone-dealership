@@ -24,36 +24,37 @@ module Transaction
   end
 
   def self.buycar
-    title("BUY INVENTORY")
+    Menu.title("BUY INVENTORY")
     puts "We need some information about this vehicle. Fill out the "
     puts "prompts when, you know, prompted."
     puts "\n"
   
-    model = menuprompt("Make/Model? > ")
-    type = menuprompt("New/Used? > ")
-    cost = menuprompt("Cost? >$")
+    model = Menu.menuprompt("Make/Model? > ")
+    type = Menu.menuprompt("New/Used? > ")
+    cost = Menu.menuprompt("Cost? >$")
     if type == "Used"
-      repairs = menuprompt("Repairs Needed? >$")
+      repairs = Menu.menuprompt("Repairs Needed to sell? >$")
     else
       repairs = "0"
     end
-    clear
-    add = menuprompt( "Is this correct?\n#{type} #{model} - $#{cost} Cost, $#{repairs} repairs\nY/N> ")
+    Menu.clear
+    add = Menu.menuprompt( "Is this correct?\n#{type} #{model} - $#{cost} Cost, $#{repairs} repairs\nY/N> ")
     if add.upcase == "Y"
-      clear
+      Menu.clear
       addcar = Car.new(model, type, cost, repairs)
       puts "Adding to inventory."
       $cars.push(addcar)
+      $total.spentdollars += addcar.cost
       sleep(1)
-      transactionmenu
+      Menu.transactions
     elsif add.upcase == "N"
       puts "Cancelled Transaction."
       sleep(1)
       clear
-      transactionmenu
+      Menu.transactions
     else
-      lastmenu
-      transactionmenu
+      Menu.lastmenu
+      Menu.transactions
     end
   end
 
@@ -65,19 +66,19 @@ module Transaction
       "escape" => "cancel",
       "options" => $cars
     }
-    input = menu(sellcarmenu)
+    input = Menu.menu(sellcarmenu)
     # I have no idea how many cars there may be in inventory, so
     # I can't have a hard-coded case statement. This is going to be
     # tricky.
 
     #filter input
-    if digitfilter(input) == true
+    if Menu.digitfilter(input) == true
       input = input.to_i
       case 
       when input <= 0
         #error invalid
-        lastmenu
-        menu(sellcarmenu)
+        Menu.lastmenu
+        Menu.menu(sellcarmenu)
       when input <= $cars.size
         @removecar = input -1
         @cost = $cars[@removecar].cost
@@ -88,23 +89,23 @@ module Transaction
         puts "The target price for this vehicle is $#{$cars[@removecar].cost * $cars[@removecar].markup + $cars[@removecar].cost}."
         sleep(2)
         
-        @saleprice = menuprompt("Sale Price: $")
-        clear
+        @saleprice = Menu.menuprompt("Sale Price: $")
+        Menu.clear
         puts "Sales Staff:"
         count = 1
         $staff.each do |x|
           puts "#{count}. #{x}"
           count += 1
         end
-        staffsale = menuprompt("Staff member who made the sale: ")
-        if digitfilter(staffsale) == true
+        staffsale = Menu.menuprompt("Staff member who made the sale: ")
+        if Menu.digitfilter(staffsale) == true
           input = staffsale.to_i
           @saleprice = @saleprice.to_i
           case 
           when input <= 0
             #error invalid
-            lastmenu
-            menu(sellcarmenu)
+            Menu.lastmenu
+            Menu.menu(sellcarmenu)
           when input <= $staff.size
             index = input - 1
             $staff[index].salenum += 1
@@ -113,7 +114,7 @@ module Transaction
             # Additional commision is earned at 8 percent of profit.
             @comm = 100
             if @saleprice > @cost
-              @comm += (@saleprice - @cost) * 1.08
+              @comm += (@saleprice - @cost) * 0.08
             end
             $staff[index].totalcomm += @comm
             $total.totalcomm += @comm
@@ -121,28 +122,28 @@ module Transaction
             $total.saledollars += @saleprice
             $cars.delete_at(@removecar)
             puts "#{$staff[index].name} made $#{@comm} commission on the sale. Well done!"
-            sleep(2)
-            transactionmenu
+            sleep(3)
+            Menu.transactions
           when input > $staff.size
             puts "Seriously, you need to be more careful. It's too hard
  to filter all this input. Cancelling sale."
             sleep(2)
-            transactionmenu
+            Menu.transactions
           end
         end
 
       when input == $cars.size + 1
         #cancel
-        transactionmenu
+        Menu.transactions
       when input > $cars.size + 1
         #error out of range
-        lastmenu
-        input = menu(sellcarmenu)
+        Menu.lastmenu
+        input = Menu.menu(sellcarmenu)
       end
-    elsif digitfilter(input) == false
+    elsif Menu.digitfilter(input) == false
       #error bad input
-      lastmenu
-      input = menu(sellcarmenu)
+      Menu.lastmenu
+      input = Menu.menu(sellcarmenu)
     end
   end
 end

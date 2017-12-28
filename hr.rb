@@ -22,27 +22,27 @@ module Hr
   end
 
   def self.addstaff
-    title("ADD STAFF")
+    Menu.title("ADD STAFF")
     puts "Welcome aboard! What is the name of our new sales agent?"
-    input = menuprompt("Name: ")
-    clear
+    input = Menu.menuprompt("Name: ")
+    Menu.clear
     sleep(1)
-    execute = confirm("Add '#{input}' to roster?")
+    execute = Menu.confirm("Add '#{input}' to roster?")
     if execute == true
       agent = Staff.new(input)
       $staff.push(agent)
       puts "Great! Added to sales roster."
       puts $agent
       sleep(1)
-      staffmenu
+      Menu.staff
     elsif execute == false
       puts "Cancelled."
       sleep(1)
-      staffmenu
+      Menu.staff
     else
       puts "Input not understood. Reverting to Staff Menu."
       sleep(2)
-      staffmenu
+      Menu.staff
     end
   end
 
@@ -55,46 +55,46 @@ module Hr
       "options" => $staff
     }
     
-    input = menu(downsizemenu)
+    input = Menu.menu(downsizemenu)
     # logic borrowed from "sell car" menu
 
     # filter input
-    if digitfilter(input) == true
+    if Menu.digitfilter(input) == true
       input = input.to_i
       case 
       when input <= 0
         #error invalid
-        lastmenu
-        menu(downsizemenu)
+        Menu.lastmenu
+        Menu.menu(downsizemenu)
       when input <= $staff.size
         index = input -1
-        execute = confirm("Remove agent #{$staff[index].name}?")
+        execute = Menu.confirm("Remove agent #{$staff[index].name}?")
         if execute == true
           puts "So long, #{$staff[index].name}! We thank you for your work."
           $staff.delete_at(index)
           sleep(2)
-          staffmenu
+          Menu.staff
         elsif execute == false
           puts "Cancel Removal."
           sleep(2)
-          staffmenu
+          Menu.staff
         else
           puts "Input not understood. Reverting to Staff menu."
           sleep(2)
-          staffmenu
+          Menu.staff
         end
       when input == $staff.size + 1
         #cancel
-        staffmenu
+        Menu.staff
       when input > $staff.size + 1
         #error out of range
-        lastmenu
-        input = menu(downsizemenu)
+        Menu.lastmenu
+        input = Menu.menu(downsizemenu)
       end
-    elsif digitfilter(input) == false
+    elsif Menu.digitfilter(input) == false
       #error bad input
-      lastmenu
-      input = menu(downsizemenu)
+      Menu.lastmenu
+      input = Menu.menu(downsizemenu)
     end
   end
 
