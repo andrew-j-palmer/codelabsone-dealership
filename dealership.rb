@@ -3,10 +3,10 @@ require_relative "globals"
 require_relative "stats"
 
 # Splash screen
-clear
-title("CAR DEALERSHIP")
-#sleep(4)
-clear
+Menu.clear
+Menu.title("CAR DEALERSHIP")
+sleep(4)
+Menu.clear
 
 # Load any cars that may be saved in inventory
 Transaction.load_cars
@@ -21,5 +21,5 @@ Stats.import
 $total = Total.new
 
 # Jump into main menu, everything else should be accessible from there
-mainmenu
+Menu.main
 
