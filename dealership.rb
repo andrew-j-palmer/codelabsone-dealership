@@ -1,11 +1,12 @@
 require_relative "menus"
 require_relative "globals"
 require_relative "stats"
+require_relative "hr"
 
 # Splash screen
 Menu.clear
 Menu.title("CAR DEALERSHIP")
-sleep(4)
+#sleep(4)
 Menu.clear
 
 # Load any cars that may be saved in inventory
@@ -18,7 +19,7 @@ Hr.load_staff
 Stats.import
 
 # Create empty single-day stat object
-$total = Total.new
+$daytotal = Total.new
 
 # Jump into main menu, everything else should be accessible from there
 Menu.main

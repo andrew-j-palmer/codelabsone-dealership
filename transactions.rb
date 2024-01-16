@@ -1,7 +1,6 @@
 require_relative 'globals'
 require_relative 'inventory'
 require_relative 'staff'
-require_relative 'hr'
 require_relative 'menus'
 
 module Transaction
@@ -32,7 +31,8 @@ module Transaction
     model = Menu.menuprompt("Make/Model? > ")
     type = Menu.menuprompt("New/Used? > ")
     cost = Menu.menuprompt("Cost? >$")
-    if type == "Used"
+    cost = cost.gsub(/[$,]/, "")
+    if type.upcase == "USED"
       repairs = Menu.menuprompt("Repairs Needed to sell? >$")
     else
       repairs = "0"
@@ -41,16 +41,19 @@ module Transaction
     add = Menu.menuprompt( "Is this correct?\n#{type} #{model} - $#{cost} Cost, $#{repairs} repairs\nY/N> ")
     if add.upcase == "Y"
       Menu.clear
-      addcar = Car.new(model, type, cost, repairs)
+      @addcar = Car.new(model, type, cost, repairs)
       puts "Adding to inventory."
-      $cars.push(addcar)
-      $total.spentdollars += addcar.cost
+      $cars.push(@addcar)
+      $daytotal.spentdollars += @addcar.cost
+      if @addcar.repairs != "0"
+        $daytotal.numservice += 1
+        $daytotal.dollarservice += @addcar.repairs.to_i
+      end
       sleep(1)
-      Menu.transactions
     elsif add.upcase == "N"
       puts "Cancelled Transaction."
       sleep(1)
-      clear
+      Menu.clear
       Menu.transactions
     else
       Menu.lastmenu
@@ -85,11 +88,18 @@ module Transaction
         puts "SELLING #{$cars[@removecar].to_s}"
         sleep(1)
         puts "as a #{$cars[@removecar].type} vehicle, it can be sold at a #{$cars[@removecar].markup * 100} percent markup."
-        sleep(2)
+        sleep(1.5)
         puts "The target price for this vehicle is $#{$cars[@removecar].cost * $cars[@removecar].markup + $cars[@removecar].cost}."
-        sleep(2)
-        
+        sleep(1)
         @saleprice = Menu.menuprompt("Sale Price: $")
+        #If trading, subtract trade-in value, then reset trade-in value to zero
+        if $trade == true        
+          @cost = @cost - $tradevalue
+          puts "(Dropping price by trade-in value of $#{$tradevalue})"
+          $trade = false
+          $tradevalue = 0
+          sleep(1.5)
+        end
         Menu.clear
         puts "Sales Staff:"
         count = 1
@@ -97,7 +107,7 @@ module Transaction
           puts "#{count}. #{x}"
           count += 1
         end
-        staffsale = Menu.menuprompt("Staff member who made the sale: ")
+        staffsale = Menu.menuprompt("Select staff member who made the sale: ")
         if Menu.digitfilter(staffsale) == true
           input = staffsale.to_i
           @saleprice = @saleprice.to_i
@@ -117,13 +127,12 @@ module Transaction
               @comm += (@saleprice - @cost) * 0.08
             end
             $staff[index].totalcomm += @comm
-            $total.totalcomm += @comm
-            $total.salenum += 1
-            $total.saledollars += @saleprice
+            $daytotal.totalcomm += @comm
+            $daytotal.salenum += 1
+            $daytotal.saledollars += @saleprice
             $cars.delete_at(@removecar)
             puts "#{$staff[index].name} made $#{@comm} commission on the sale. Well done!"
             sleep(3)
-            Menu.transactions
           when input > $staff.size
             puts "Seriously, you need to be more careful. It's too hard
  to filter all this input. Cancelling sale."
@@ -144,6 +153,84 @@ module Transaction
       #error bad input
       Menu.lastmenu
       input = Menu.menu(sellcarmenu)
+    end
+  end
+
+  def self.tradecar
+    tradecarmenu = {
+      "title" => "TRADE VEHICLE",
+      "instructions" => "To trade, we first want to enter the trade vehicle into inventory. Then, we will apply the trade value towards the sale.",
+      "prompt" => "",
+      "escape" => "Press Enter to continue or enter '1' to cancel.",
+      "options" => []
+    }
+    #trade variable tells sellcar menu to subtract trade-in value
+    $trade = true
+    input = Menu.menu(tradecarmenu)
+    if input == "1"
+      Menu.transactions
+    elsif input == ""
+      Transaction.buycar
+      $tradevalue = @addcar.tradevalue.to_i
+      Transaction.sellcar
+      Menu.transactions
+    else
+      Menu.lastmenu
+      Menu.transactions
+    end
+  end
+
+  def self.service
+    servicemenu= {
+      "title" => "SERVICE VEHICLE",
+      "instructions" => "Choose from a list of services below, or select other to enter a service not listed.",
+      "prompt" => "Service> ",
+      "escape" => "Cancel",
+      "options" => [ "Body Shop/Glass", "Brake Job", "Chassis Lube", "Emissions System Testing/Service",
+ "Detail Shop/Interior", "Engine Service/Repair", "Heat/A/C Services", "Oil Change", "Suspension Service/Repair",
+ "Tires", "Transmission Repair/Service", "Tune-Up", "Other"]
+    }
+    input = Menu.menu(servicemenu)
+    if Menu.digitfilter(input) == true
+      input = input.to_i
+      case 
+      when input <= 0
+        #error invalid
+        Menu.lastmenu
+        Menu.menu(servicemenu)
+      when input < servicemenu["options"].size
+        index = input -1
+        Menu.clear
+        Menu.title(servicemenu["options"].at(index).upcase)
+        serviceamt =  Menu.menuprompt("Enter dollar amount of parts and labor: $")
+        $daytotal.numservice += 1
+        $daytotal.dollarservice += serviceamt.to_i
+        Menu.clear
+        puts "Adding $#{serviceamt} to daily Service totals."
+        sleep(2)
+        Menu.transactions
+      when input == servicemenu["options"].size
+        index = input -1
+        Menu.clear
+        Menu.title(servicemenu["options"].at(index).upcase)
+        description = Menu.menuprompt("Enter description of services: ")
+        serviceamt =  Menu.menuprompt("Enter dollar amount of parts and labor: $")
+        $daytotal.numservice += 1
+        $daytotal.dollarservice += serviceamt.to_i
+        Menu.clear
+        puts "Adding $#{serviceamt} to daily Service totals."
+        sleep(2)
+        Menu.transactions
+      when input == servicemenu["options"].size + 1
+        #cancel
+        puts "Cancelling Transaction."
+        sleep(1)
+        Menu.transactions
+      else
+        #error invalid
+        Menu.lastmenu
+        Menu.menu(servicemenu)
+      end
     end
   end
 end

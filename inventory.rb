@@ -2,25 +2,23 @@
 
 #CSV FORMAT-> MAKE MODEL|N/U|COST
 class Car
-  attr_reader :model
+  attr_reader :model, :tradevalue, :type, :repairs
   attr_accessor :cost
-  def initialize(model,type,cost,repairs=0)
+  def initialize(model,type,value,repairs=0)
     @model = model
-    @type = type
-    @cost = cost.to_i + repairs.to_i
+    @type = type.capitalize
+    @cost = value.to_i + repairs.to_i
+    @tradevalue = value.to_i - repairs.to_i 
+    @repairs = repairs
 
   end
 
   def to_s
-    "#{@type} #{@model} - $#{@cost.to_s}"
+    "#{@type} #{@model} - $#{@cost}"
   end
 
   def to_csv
-    @model + "|" + @type + "|" + @cost.to_s
-  end
-
-  def type
-    @type
+    @model.to_s + "|" + @type.to_s + "|" + @cost.to_s
   end
 
   def markup

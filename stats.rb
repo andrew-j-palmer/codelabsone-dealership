@@ -31,25 +31,30 @@ module Stats
     
   def self.save(inputfile="totals.csv")
     File.open(inputfile, "a+") do |file|
-      line = ($totals.size + 1 ).to_s + "|" + $total.salenum.to_s + "|" +
- $total.spentdollars.to_s + "|" + $total.saledollars.to_s + "|" + $total.totalcomm.to_s +
- "|" + $total.numservice.to_s + "|" + $total.dollarservice.to_s
+      line = ($totals.size + 1 ).to_s + "|" + $daytotal.salenum.to_s + "|" +
+ $daytotal.spentdollars.to_s + "|" + $daytotal.saledollars.to_s + "|" + $daytotal.totalcomm.to_s +
+ "|" + $daytotal.numservice.to_s + "|" + $daytotal.dollarservice.to_s
       puts "saved stats: " + line
       file.puts line
     end
   end
 
+  def self.prepare_totals(stattotal,statobject)
+    stattotal.salenum += statobject.salenum.to_i
+    stattotal.spentdollars += statobject.spentdollars.to_i
+    stattotal.saledollars += statobject.saledollars.to_i
+    stattotal.totalcomm += statobject.totalcomm.to_i
+    stattotal.numservice += statobject.numservice.to_i
+    stattotal.dollarservice += statobject.dollarservice.to_i
+  end
+
   def self.all_time
-    @figures = $total
-    @figures.saleday = $totals.size
+    @figures = Total.new
+    @figures.saleday = $totals.size + 1
+    Stats.prepare_totals(@figures, $daytotal)
     if $alltimestats == true
       $totals.each do |x|
-        @figures.salenum += x.salenum.to_i
-        @figures.spentdollars += x.spentdollars.to_i
-        @figures.saledollars += x.saledollars.to_i
-        @figures.totalcomm += x.totalcomm.to_i
-        @figures.numservice += x.numservice.to_i
-        @figures.dollarservice += x.dollarservice.to_i
+        Stats.prepare_totals(@figures, x)
       end
       @state = "ALL-TIME "
       @line = "Over #{@figures.saleday} days:\n"
@@ -57,6 +62,7 @@ module Stats
       @state = "DAILY "
       @line = "For day #{@figures.saleday}:\n"
     end
+    $alltimestats == false
   end
 
   def self.vehicletotals
@@ -97,10 +103,10 @@ module Stats
     puts "(#{@figures.salenum} vehicle sales and #{@figures.numservice} Services performed)"
     puts ""
     puts "Total Expenditures: #{@expenditures}"
-    puts "(Vehicles brought into inventory, repairs on vehicles currently in inventory)"
+        puts "(Vehicles brought into inventory, repairs on inventory vehicles)"
     puts "\n\n"
     sleep(3)
-    puts "Balance: $#{@revenue - @expenditures}"
+    puts "Profit: $#{@revenue - @expenditures}"
     sleep(1)
     Menu.menuprompt("(Press Enter to return to Reports/Statistics)\n\n")
     Menu.stats

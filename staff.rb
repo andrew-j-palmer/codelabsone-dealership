@@ -13,7 +13,7 @@ class Staff
   end
 
   def to_s
-    "#{@name} - #{@salenum} Sales"
+    "#{@name} - #{@salenum} Sales totalling $#{@saledollars}"
   end
 
   def to_csv

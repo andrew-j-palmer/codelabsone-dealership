@@ -1,6 +1,6 @@
 require_relative 'transactions'
 
-#All the menus for the app.
+# Tools for building menus. At the bottom are the app main menus.
 module Menu
 
   def self.clear
@@ -37,10 +37,11 @@ module Menu
     puts params["instructions"]
     puts "\n\n"
     params["options"].each do |x|
-      puts "#{count}. #{x.to_s}  "
+      option = count.to_s + "."
+      puts "#{option.rjust(3, " ")} #{x}  "
       count += 1
     end
-    puts "#{count}. #{params["escape"]}"
+    puts (count.to_s + ".").rjust(3, " ") + " #{params["escape"]}"
     puts "\n"
     Menu.menuprompt(params["prompt"])
 
@@ -74,7 +75,7 @@ module Menu
 
   def self.digitfilter(input)
     # return T/F on whether input is a number. Used for menus.
-    if /^[1-9]+$/.match(input) != nil
+    if /^\d+$/.match(input) != nil
       true
     else
       false
@@ -132,12 +133,16 @@ module Menu
     case input
     when "1"
       Transaction.buycar
+      Menu.transactions
     when "2"
       Transaction.sellcar
+      Menu.transactions
     when "3"
       Transaction.tradecar
+      Menu.transactions
     when "4"
       Transaction.service
+      Menu.transactions
     when "5"
       Menu.main
     else
